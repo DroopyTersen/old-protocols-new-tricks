@@ -86,7 +86,8 @@ app.MapGet(
     "/text-stream",
     async ctx =>
     {
-        PrepStream(ctx.Response, "text/plain; charset=utf-8");
+        // Set content type to html to avoid buffering. Browser or server?
+        PrepStream(ctx.Response, "text/html; charset=utf-8");
 
         var delay = int.TryParse(ctx.Request.Query["delay"], out var ms) ? ms : 120;
         var text = "Streaming plain text feels just like typing…";
@@ -104,10 +105,11 @@ app.MapGet(
     "/llm-stream",
     async (HttpContext context) =>
     {
-        PrepStream(context.Response, "text/plain; charset=utf-8");
+        PrepStream(context.Response, "text/html; charset=utf-8");
 
         // Get OpenAI API key from configuration
         var apiKey = app.Configuration["OpenAI:ApiKey"];
+        await context.Response.WriteAsync("<pre>");
 
         if (string.IsNullOrEmpty(apiKey))
         {
@@ -120,9 +122,7 @@ app.MapGet(
         try
         {
             var chatService = new ChatStreamingService(apiKey);
-            var prompt =
-                context.Request.Query["prompt"].ToString()
-                ?? "Explain the benefits of HTTP streaming for real-time applications in a concise way.";
+            var prompt = "Count from 1 to 100 in words. as a bulleted list.";
 
             await chatService.StreamChatAsync(
                 prompt,
@@ -133,6 +133,7 @@ app.MapGet(
                 },
                 context.RequestAborted
             );
+            await context.Response.WriteAsync("</pre>");
         }
         catch (Exception ex)
         {

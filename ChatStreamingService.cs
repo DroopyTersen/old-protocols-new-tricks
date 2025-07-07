@@ -48,10 +48,11 @@ public sealed class ChatStreamingService
             var update in _chat.CompleteChatStreamingAsync(messages, options, cancellationToken)
         )
         {
-            foreach (var contentPart in update.ContentUpdate)
+            if (update.ContentUpdate.Count > 0)
             {
-                if (!string.IsNullOrEmpty(contentPart.Text))
-                    await onDelta(contentPart.Text);
+                var text = update.ContentUpdate[0].Text;
+                if (!string.IsNullOrEmpty(text))
+                    await onDelta(text);
             }
         }
     }
