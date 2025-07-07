@@ -72,3 +72,44 @@ The API will be available at `https://localhost:7000` (or the port specified in 
 ## Why This Matters
 
 Streaming transforms AI response delivery from a static, wait-for-completion model to a dynamic, real-time interaction that feels more responsive and engaging—all using protocols that have been available for decades.
+
+## Streaming Challenges & Gotchas
+
+While streaming unlocks powerful UX gains, it also exposes you to quirks that do not surface in the traditional _one-chunk_ model. Below is an outline of the most common issues you will run into and how to mitigate them.
+
+### 1. Stream Cancellation & Resource Leaks
+
+* **Client aborts are silent by default.**  If the browser tab is closed or the user navigates away, your server code will continue to execute unless you explicitly observe `HttpContext.RequestAborted` (ASP.NET) / the equivalent cancellation token.
+* **Long-running background tasks** may continue to burn CPU/GPU minutes after the user has disappeared. Always thread the cancellation token through LLM API calls, tool executions, database work and child processes.
+* **Retry behaviour** – some load-balancers will retry failed upstream requests causing duplicate work. Make your endpoints idempotent or detect partial progress.
+
+### 2. Buffering & Proxy Layers
+
+* **Framework buffering** – ASP.NET Core enables response buffering when the response size is unknown. Call `HttpResponse.BodyWriter.FlushAsync()` (or `await Response.WriteAsync("\n", flush:true)` in MVC) to force a chunk to flush.
+* **Reverse proxies (NGINX/Apache/Caddy)** often buffer by default, negating streaming. Disable via `proxy_buffering off;` or send `X-Accel-Buffering: no`.
+* **CDNs & serverless edges** – Cloudflare, Fastly and friends have their own buffering rules and minimum chunk sizes. Test with _curl_ against the public endpoint, not just localhost.
+
+### 3. Browser & Fetch Quirks
+
+* **Safari < 17** does not expose the `ReadableStream` returned by `fetch`, breaking streaming entirely.
+* **Older Chromium versions** coalesce small chunks. Prefix tiny messages with a few spaces / newline to reach `~2 KB` when you absolutely need real-time granularity.
+* **SSE parsing** – remember every event line must end with `\n\n`. Missing the extra newline will stall the stream.
+
+### 4. Back-pressure & Flow Control
+
+* **TCP/HTTP2 flow control** applies: if the client cannot consume data fast enough, the server will eventually block on `WriteAsync`. Surface this back-pressure to your worker logic to pause expensive work.
+* **Large objects in a stream** (e.g. base64 images) can clog the pipe and starve token-level updates. Send them out-of-band or on a separate channel.
+
+### 5. Timeouts & Keep-Alives
+
+* **Load balancers** typically kill idle connections after 60–120 s _even if the socket is open_. Send heartbeat whitespace or comments every < 30 s.
+* **Browsers** have their own internal timeout (~5 min in Chrome). Long agentic plans may need periodic `:keep-alive` SSE comments.
+
+### 6. Content-Length, CORS & Miscellaneous
+
+* Omit `Content-Length` or set `Transfer-Encoding: chunked`; otherwise most servers will wait to know the size up-front.
+* Pre-flighted CORS requests need the same headers on _every_ chunk for some proxies. Prefer SSE which is CORS-friendly.
+
+---
+
+Keep this list handy when you debug a “Why is my stream not streaming?” report — 90 % of the time it’s one of the issues above.
