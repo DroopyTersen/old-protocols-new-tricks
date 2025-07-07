@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Old Protocols, New Tricks</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        max-width: 800px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f5f5f5;
+      }
+      .container {
+        background: white;
+        padding: 30px;
+        border-radius: 10px;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      }
+      h1 {
+        color: #333;
+        text-align: center;
+        margin-bottom: 10px;
+      }
+      .subtitle {
+        text-align: center;
+        color: #666;
+        font-style: italic;
+        margin-bottom: 30px;
+      }
+      .route-section {
+        margin: 20px 0;
+        padding: 20px;
+        background: #f8f9fa;
+        border-radius: 5px;
+        border-left: 4px solid #007bff;
+      }
+      .route-link {
+        display: inline-block;
+        padding: 10px 20px;
+        background: #007bff;
+        color: white;
+        text-decoration: none;
+        border-radius: 5px;
+        margin: 5px 0;
+        transition: background-color 0.3s;
+      }
+      .route-link:hover {
+        background: #0056b3;
+      }
+      .description {
+        margin-top: 10px;
+        color: #555;
+      }
+      .demo-link {
+        background: #28a745;
+      }
+      .demo-link:hover {
+        background: #1e7e34;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Old Protocols, New Tricks</h1>
+      <p class="subtitle">Learning vintage HTTP to ship futuristic AI</p>
+
+      <div class="route-section">
+        <h3>Content Delivery Routes</h3>
+
+        <div>
+          <a href="/html-content" class="route-link" target="_blank"
+            >GET /html-content</a
+          >
+          <p class="description">Serve HTML content in one complete chunk</p>
+        </div>
+
+        <div>
+          <a href="/text-content" class="route-link" target="_blank"
+            >GET /text-content</a
+          >
+          <p class="description">Serve text content in one complete chunk</p>
+        </div>
+      </div>
+
+      <div class="route-section">
+        <h3>Streaming Routes</h3>
+
+        <div>
+          <a href="/html-stream" class="route-link" target="_blank"
+            >GET /html-stream</a
+          >
+          <p class="description">
+            Stream HTML content line by line - watch the page build
+            progressively
+          </p>
+        </div>
+
+        <div>
+          <a href="/text-stream" class="route-link" target="_blank"
+            >GET /text-stream</a
+          >
+          <p class="description">
+            Stream text content word by word - see each word appear in real-time
+          </p>
+        </div>
+
+        <div>
+          <a href="/llm-stream" class="route-link" target="_blank"
+            >GET /llm-stream</a
+          >
+          <p class="description">
+            Simulate LLM token streaming with variable timing - like ChatGPT
+            responses
+          </p>
+        </div>
+      </div>
+
+      <div class="route-section">
+        <h3>About This Project</h3>
+        <p>
+          This project demonstrates how HTTP streaming—a capability that has
+          existed for decades—can be leveraged to create responsive AI
+          applications. Instead of waiting for complete responses, we can stream
+          content progressively, creating a more engaging user experience.
+        </p>
+
+        <p><strong>Key Concepts:</strong></p>
+        <ul>
+          <li>Progressive content delivery using vintage HTTP protocols</li>
+          <li>Real-time response streaming for AI applications</li>
+          <li>Leveraging built-in browser streaming capabilities</li>
+        </ul>
+      </div>
+    </div>
+  </body>
+</html>

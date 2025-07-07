@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../buildMultiTargeting/old-protocols-new-tricks.props" />
+</Project>

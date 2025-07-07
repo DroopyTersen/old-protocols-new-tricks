@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Old Protocols, New Tricks</title>
+    <style>
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        margin: 0;
+        padding: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <h1>Old Protocols, New Tricks</h1>
+      <p class="subtitle">
+        Learning vintage HTTP to ship modern AI applications
+      </p>
+
+      <div class="problem-box">
+        <h2>🚩 What's the Problem?</h2>
+        <p>
+          <strong>"Tokens per second"</strong> sounds impressive, but attention
+          spans are measured in <em>milliseconds</em>.
+        </p>
+        <ul>
+          <li>
+            Tokens-per-second is actually a <strong>long time</strong> to wait
+          </li>
+          <li>
+            Agentic chains ⇒ from 10 seconds to
+            <span class="highlight">multiple minutes</span> of latency
+          </li>
+          <li>Users expect instant feedback, not loading spinners</li>
+        </ul>
+      </div>
+
+      <h2>The One-Chunk Mindset</h2>
+      <p>
+        How we got here: <code>ASP.NET MVC</code>, <code>AJAX+JSON</code>,
+        <code>SPA loaders</code>
+      </p>
+
+      <div class="tech-point">
+        <strong>Traditional Approach:</strong> Wait for complete response →
+        Display everything at once
+      </div>
+
+      <div class="tech-point">
+        <strong>The Problem:</strong> Long waits create poor user experience,
+        especially for AI workflows
+      </div>
+
+      <div class="solution-box">
+        <h2>💡 HTTP Streaming Primer</h2>
+        <p>
+          Fortunately, <strong>HTTP streaming</strong>, a dial-up era relic, can
+          incrementally reveal progress.
+        </p>
+
+        <h3>Key Streaming Techniques:</h3>
+        <ul>
+          <li>
+            <strong>HTML streamed line-by-line:</strong> Progressive page
+            building
+          </li>
+          <li>
+            <strong>Plain-text streaming:</strong> Real-time content delivery
+          </li>
+          <li>
+            <strong>LLM token streaming:</strong> Show AI "thinking" in
+            real-time
+          </li>
+        </ul>
+      </div>
+
+      <h2>Historical Context</h2>
+      <blockquote>
+        HTTP streaming capabilities have existed since
+        <strong>1997 HTTP/1.1 chunked transfer</strong> and
+        <strong>2009 Server-Sent Events (SSE)</strong>. These aren't new
+        technologies—we're just applying them to modern problems.
+      </blockquote>
+
+      <div class="demo-list">
+        <h3>🎯 Demo Capabilities</h3>
+        <p>This project demonstrates:</p>
+        <ul>
+          <li>
+            <strong>Full-page HTML:</strong> Traditional one-chunk delivery
+          </li>
+          <li>
+            <strong>Text responses:</strong> Complete vs. streaming comparison
+          </li>
+          <li>
+            <strong>HTML streaming:</strong> Watch pages build progressively
+          </li>
+          <li>
+            <strong>LLM simulation:</strong> Token-by-token delivery with
+            realistic timing
+          </li>
+        </ul>
+      </div>
+
+      <h2>Advanced Streaming Challenges</h2>
+      <p>
+        Sophisticated agentic workflows require streaming more than just text:
+      </p>
+
+      <div class="tech-point">
+        <strong>Multiple LLM calls:</strong> Merge multiple streams into single
+        user experience
+      </div>
+
+      <div class="tech-point">
+        <strong>Progress updates:</strong> Stream logs, data, tool calls, and
+        arbitrary events
+      </div>
+
+      <div class="tech-point">
+        <strong>Real-time coordination:</strong> Handle complex AI workflows
+        with live feedback
+      </div>
+
+      <h2>Why This Matters</h2>
+      <p>
+        Streaming transforms AI response delivery from a
+        <span class="highlight">static, wait-for-completion model</span> to a
+        <span class="highlight">dynamic, real-time interaction</span> that feels
+        more responsive and engaging.
+      </p>
+
+      <h3>Technical Benefits:</h3>
+      <ul>
+        <li>
+          <strong>Progressive content delivery</strong> using vintage HTTP
+          protocols
+        </li>
+        <li>
+          <strong>Real-time response streaming</strong> for AI applications
+        </li>
+        <li>
+          <strong>Built-in browser support</strong> — no special libraries
+          needed
+        </li>
+        <li>
+          <strong>Improved perceived performance</strong> — users see progress
+          immediately
+        </li>
+      </ul>
+
+      <blockquote>
+        <strong>Key Insight:</strong> HTTP has supported streaming for decades.
+        We're simply leveraging existing browser capabilities for cutting-edge
+        AI applications.
+      </blockquote>
+
+      <footer
+        style="
+          margin-top: 40px;
+          padding-top: 20px;
+          border-top: 1px solid #eee;
+          color: #888;
+          text-align: center;
+        "
+      >
+        <p>
+          Built with .NET Core Minimal APIs • Demonstrating vintage protocols
+          for modern AI
+        </p>
+      </footer>
+    </div>
+  </body>
+</html>

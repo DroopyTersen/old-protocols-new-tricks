@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "WLwGCsum7pU=",
+  "success": true,
+  "projectFilePath": "/Users/drew/code/old-protocols-new-tricks/old-protocols-new-tricks.csproj",
+  "expectedPackageFiles": [
+    "/Users/drew/.nuget/packages/microsoft.aspnetcore.openapi/9.0.1/microsoft.aspnetcore.openapi.9.0.1.nupkg.sha512",
+    "/Users/drew/.nuget/packages/microsoft.openapi/1.6.17/microsoft.openapi.1.6.17.nupkg.sha512"
+  ],
+  "logs": []
+}

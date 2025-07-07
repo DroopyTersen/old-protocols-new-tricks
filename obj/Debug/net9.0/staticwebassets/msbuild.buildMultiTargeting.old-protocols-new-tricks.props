@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="../build/old-protocols-new-tricks.props" />
+</Project>

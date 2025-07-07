@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Streaming Demo - Old Protocols, New Tricks</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #333;
+            text-align: center;
+            margin-bottom: 30px;
+        }
+        .demo-section {
+            margin: 30px 0;
+            padding: 20px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            border-left: 4px solid #007bff;
+        }
+        .demo-button {
+            padding: 12px 24px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 10px 10px 10px 0;
+            transition: background-color 0.3s;
+        }
+        .demo-button:hover {
+            background: #0056b3;
+        }
+        .demo-button:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+        }
+        .output {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 20px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            min-height: 100px;
+            white-space: pre-wrap;
+            margin-top: 15px;
+            border: 1px solid #ddd;
+        }
+        .clear-button {
+            background: #dc3545;
+            margin-left: 10px;
+        }
+        .clear-button:hover {
+            background: #c82333;
+        }
+        .back-link {
+            display: inline-block;
+            padding: 10px 20px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            background: #218838;
+        }
+        .status {
+            font-size: 14px;
+            color: #666;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <a href="/app" class="back-link">← Back to Main</a>
+        
+        <h1>Interactive Streaming Demo</h1>
+        
+        <div class="demo-section">
+            <h3>Basic Streaming Demo</h3>
+            <p>Watch as content streams in line by line, demonstrating how HTTP can deliver content progressively.</p>
+            <button class="demo-button" onclick="startBasicStream()">Start Basic Stream</button>
+            <button class="demo-button clear-button" onclick="clearOutput('basicOutput')">Clear</button>
+            <div id="basicStatus" class="status"></div>
+            <div id="basicOutput" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>AI Response Simulation</h3>
+            <p>Experience how modern AI responses feel when delivered word-by-word instead of all at once.</p>
+            <button class="demo-button" onclick="startAIStream()">Start AI Stream</button>
+            <button class="demo-button clear-button" onclick="clearOutput('aiOutput')">Clear</button>
+            <div id="aiStatus" class="status"></div>
+            <div id="aiOutput" class="output"></div>
+        </div>
+        
+        <div class="demo-section">
+            <h3>Compare: All-at-Once vs Streaming</h3>
+            <p>See the difference between traditional all-at-once loading and progressive streaming.</p>
+            <button class="demo-button" onclick="loadAllAtOnce()">Load All at Once</button>
+            <button class="demo-button" onclick="loadStreaming()">Load Streaming</button>
+            <button class="demo-button clear-button" onclick="clearOutput('compareOutput')">Clear</button>
+            <div id="compareStatus" class="status"></div>
+            <div id="compareOutput" class="output"></div>
+        </div>
+    </div>
+
+    <script>
+        function clearOutput(elementId) {
+            document.getElementById(elementId).textContent = '';
+            document.getElementById(elementId.replace('Output', 'Status')).textContent = '';
+        }
+
+        async function startBasicStream() {
+            const output = document.getElementById('basicOutput');
+            const status = document.getElementById('basicStatus');
+            const button = event.target;
+            
+            button.disabled = true;
+            status.textContent = 'Streaming in progress...';
+            output.textContent = '';
+            
+            try {
+                const response = await fetch('/stream');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    output.textContent += chunk;
+                }
+                
+                status.textContent = 'Stream completed!';
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        async function startAIStream() {
+            const output = document.getElementById('aiOutput');
+            const status = document.getElementById('aiStatus');
+            const button = event.target;
+            
+            button.disabled = true;
+            status.textContent = 'AI response streaming...';
+            output.textContent = '';
+            
+            try {
+                const response = await fetch('/ai-stream');
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                
+                while (true) {
+                    const { done, value } = await reader.read();
+                    if (done) break;
+                    
+                    const chunk = decoder.decode(value, { stream: true });
+                    output.textContent += chunk;
+                }
+                
+                status.textContent = 'AI response completed!';
+            } catch (error) {
+                status.textContent = 'Error: ' + error.message;
+            } finally {
+                button.disabled = false;
+            }
+        }
+
+        async function loadAllAtOnce() {
+            const output = document.getElementById('compareOutput');
+            const status = document.getElementById('compareStatus');
+            
+            status.textContent = 'Loading all content at once...';
+            output.textContent = '';
+            
+            setTimeout(() => {
+                const fullText = "This is what traditional web loading looks like. You wait... and wait... and then suddenly all the content appears at once! No progressive feedback, no sense of progress, just a blank screen followed by everything appearing instantly.";
+                output.textContent = fullText;
+                status.textContent = 'All content loaded instantly!';
+            }, 2000);
+        }
+
+        async function loadStreaming() {
+            const output = document.getElementById('compareOutput');
+            const status = document.getElementById('compareStatus');
+            
+            status.textContent = 'Streaming content progressively...';
+            output.textContent = '';
+            
+            const words = "This is what streaming looks like. Each word appears as it becomes available, giving you immediate feedback and a sense of progress. Much more engaging than waiting for everything at once!".split(' ');
+            
+            for (let i = 0; i < words.length; i++) {
+                output.textContent += words[i] + ' ';
+                await new Promise(resolve => setTimeout(resolve, 150));
+            }
+            
+            status.textContent = 'Streaming completed!';
+        }
+    </script>
+</body>
+</html>
