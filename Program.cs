@@ -77,7 +77,7 @@ app.MapGet(
         {
             await context.Response.WriteAsync(line + "\n");
             await context.Response.Body.FlushAsync();
-            await Task.Delay(250);
+            await Task.Delay(120);
         }
     }
 );

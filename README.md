@@ -4,7 +4,7 @@
 
 We'll resurrect HTTP features that have been dormant in our typical React+API+DB stack, and discover how they can enhance modern user experience.
 
-## Agenda
+## Outline
 
 1. **What's the problem?**
 
@@ -13,7 +13,7 @@ We'll resurrect HTTP features that have been dormant in our typical React+API+DB
 
 2. **The One-Chunk Mindset**
 
-   - How we got here: ASP.NET MVC, AJAX+JSON, SPA loaders
+   - How we got here: ASP.NET MVC, AJAX+JSON, SPA loaders, etc..
    - .NET Demo - Full-page HTML and/or text response
 
 3. **HTTP Streaming Primer**
@@ -32,29 +32,10 @@ We'll resurrect HTTP features that have been dormant in our typical React+API+DB
 
 > All concepts will be explained through barebones .NET Core Minimal API examples.
 
-## Summary
-
-This project demonstrates how streaming HTTP—a capability that has existed in browsers and HTTP for decades—can be leveraged to create responsive AI applications. While traditional web approaches loaded entire content in one chunk, modern LLM interactions benefit from progressive, line-by-line streaming delivery.
-
 ## Key Concepts
 
-- **Streaming HTTP**: Progressive delivery of content that enables real-time, incremental response rendering
-- **Vintage Protocol, Modern Use**: Utilizing long-existing HTTP streaming capabilities for cutting-edge AI applications
-- **Progressive Generation**: Showing content as it's generated rather than waiting for complete responses
-
-## Technical Approach
-
-1. **Full Content Block**: Traditional approach loading entire responses at once
-2. **Line-by-Line Delivery**: Implementing incremental content delivery with configurable intervals
-3. **Built-in Browser Support**: Leveraging existing browser and HTTP streaming capabilities
-
-## Implementation
-
-This minimal API demonstrates:
-
-- HTTP streaming protocols for AI responses
-- Progressive content delivery techniques
-- Real-time response rendering capabilities
+- **Streaming HTTP**: Responding in chunks, not all at once. But in ways the browser can understand, and incrementally render.
+- **Server-Sent Events**: A long running one-way that the server can use to push events to the client.
 
 ## Getting Started
 
@@ -62,13 +43,130 @@ This minimal API demonstrates:
 dotnet run
 ```
 
-The API will be available at `https://localhost:7000` (or the port specified in your launch settings).
+## Handling Streams Client-Side
 
-## Endpoints
+Things start exactly as we are used to, a `fetch` request to our API.
 
-- `/stream` - Demonstrates basic streaming response
-- `/ai-stream` - Simulates AI response streaming with progressive text delivery
+```javascript
+const response = await fetch("/api/chat", {
+  method: "POST",
+  body: JSON.stringify({ message: "Hello AI!" }),
+  headers: { "Content-Type": "application/json" },
+});
+```
 
-## Why This Matters
+From here, we typically something like `let data = await response.json()` to get the final API response:
 
-Streaming transforms AI response delivery from a static, wait-for-completion model to a dynamic, real-time interaction that feels more responsive and engaging—all using protocols that have been available for decades.
+```mermaid
+gantt
+    title Traditional API Request
+    dateFormat X
+    axisFormat %L ms
+
+    section fetch -> resp.json()
+    API Response     :crit, json1, 0, 100
+    Update UI           :active, json2, 100, 105
+```
+
+But in the browser, handling a stream requires a bit of extra work.
+
+```mermaid
+gantt
+    title Streaming with Progressive UI Updates
+    dateFormat X
+    axisFormat %L ms
+
+    section fetch -> Stream Reader
+    Chunk 1             :crit, chunk1, 0, 20
+    Update UI           :active, proc1, 20, 25
+    Chunk 2             :crit, chunk2, 20, 40
+    Update UI           :active, proc2, 40, 45
+    Chunk 3             :crit, chunk3, 40, 60
+    Update UI           :active, proc3, 60, 65
+    Chunk 4             :crit, chunk4, 60, 80
+    Update UI           :active, proc4, 80, 85
+    Final Chunk         :crit, chunk5, 80, 100
+    Update UI           :active, proc5, 100, 105
+```
+
+Process chunks as they arrive. Enables progressive rendering and better user experience for long responses. More code but much better UX.
+
+1. Make the `fetch` request like typical
+2. Read the fetch response in chunks, for each chunk, update the UI.
+
+```ts
+// The 'response' comes from the shared fetch setup above
+const reader = response.body.getReader();
+const decoder = new TextDecoder();
+
+try {
+  while (true) {
+    // Read each chunk as it arrives
+    const { done, value } = await reader.read();
+    if (done) break;
+
+    const chunk = decoder.decode(value, { stream: true });
+    console.log("Received chunk:", chunk);
+
+    // Update UI immediately with each chunk
+    appendAIResponse(chunk);
+  }
+} finally {
+  reader.releaseLock();
+}
+```
+
+## Cross Compatibility
+
+The nice thing is that generally both the server and client can handle both approaches in a cross-compatible way.
+
+| Server Response     | Client: `await response.text()`                                           | Client: Stream Reader                                   |
+| ------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------- |
+| **One Big Chunk**   | ✅ Works perfectly<br/>_Gets complete response at once_                   | ✅ Works perfectly<br/>_Reads single chunk then ends_   |
+| **Streamed Chunks** | ✅ Works perfectly<br/>_Waits for all chunks, then returns complete text_ | ✅ Works perfectly<br/>_Reads each chunk as it arrives_ |
+
+**Key Insight**: HTTP streaming is backwards compatible! You can:
+
+- Fetch a stream and load the whole thing as a single chunk
+- Create a client-side stream reader that works even if server responds in one big chunk
+
+```mermaid
+gantt
+    title Network Waterfall: Client Processing Patterns
+    dateFormat X
+    axisFormat %L ms
+
+            section Option A: Full Response + resp.text()
+    Server Response         :crit, big1, 0, 100
+    Update UI               :active, big2, 100, 105
+
+    section Option B: Full Response + Stream Reader
+    Server Response         :crit, big3, 0, 100
+    Update UI               :active, big4, 100, 105
+
+    section Option C: Streaming + resp.text()
+    Chunk 1                :crit, stream1, 0, 20
+    Chunk 2                :crit, stream2, 20, 40
+    Chunk 3                :crit, stream3, 40, 60
+    Chunk 4                :crit, stream4, 60, 80
+    Final Chunk            :crit, stream5, 80, 100
+    Update UI              :active, stream6, 100, 105
+
+    section Option D: Streaming + Stream Reader
+    Chunk 1             :crit, chunk1, 0, 20
+    Update UI           :active, proc1, 20, 25
+    Chunk 2             :crit, chunk2, 20, 40
+    Update UI           :active, proc2, 40, 45
+    Chunk 3             :crit, chunk3, 40, 60
+    Update UI           :active, proc3, 60, 65
+    Chunk 4             :crit, chunk4, 60, 80
+    Update UI           :active, proc4, 80, 85
+    Final Chunk         :crit, chunk5, 80, 100
+    Update UI           :active, proc5, 100, 105
+```
+
+## Other topics/caveats/gotchas
+
+- Streaming JSON is not a simple thing
+- Streaming gotchas around caching and proxies
+- Server sent events and EventSource, but only supports GET requests
